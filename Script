@@ -1,0 +1,285 @@
+--// Services
+local Players = game:GetService("Players")
+local RunService = game:GetService("RunService")
+local Camera = workspace.CurrentCamera
+local LocalPlayer = Players.LocalPlayer
+local UIS = game:GetService("UserInputService")
+
+--// Toggle GUI (diperbesar & draggable)
+local ToggleGui = Instance.new("ScreenGui", game.CoreGui)
+ToggleGui.Name = "ToggleGUI"
+
+local ToggleButton = Instance.new("TextButton")
+ToggleButton.Size = UDim2.new(0, 50, 0, 50) -- ukuran diperbesar
+ToggleButton.Position = UDim2.new(0, 10, 0, 10)
+ToggleButton.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+ToggleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ToggleButton.Text = "+"
+ToggleButton.Font = Enum.Font.GothamBold
+ToggleButton.TextSize = 24
+ToggleButton.Parent = ToggleGui
+Instance.new("UICorner", ToggleButton).CornerRadius = UDim.new(0, 8)
+
+--// Drag support untuk toggle
+local dragging, dragInput, dragStart, startPos
+ToggleButton.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		dragging = true
+		dragStart = input.Position
+		startPos = ToggleButton.Position
+		input.Changed:Connect(function()
+			if input.UserInputState == Enum.UserInputState.End then dragging = false end
+		end)
+	end
+end)
+ToggleButton.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseMovement then dragInput = input end
+end)
+UIS.InputChanged:Connect(function(input)
+	if input == dragInput and dragging then
+		local delta = input.Position - dragStart
+		ToggleButton.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+	end
+end)
+
+--// GUI Utama
+local ScreenGui = Instance.new("ScreenGui")
+ScreenGui.Name = "ESP_AIMBOT_GUI"
+ScreenGui.Parent = game.CoreGui
+ScreenGui.Enabled = false
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Size = UDim2.new(0, 200, 0, 120)
+MainFrame.Position = UDim2.new(0, 20, 0, 60)
+MainFrame.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+MainFrame.BorderSizePixel = 0
+MainFrame.Parent = ScreenGui
+Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
+
+--// Tab Buttons
+local ESPTab = Instance.new("TextButton")
+ESPTab.Size = UDim2.new(0.5, -5, 0, 30)
+ESPTab.Position = UDim2.new(0, 5, 0, 5)
+ESPTab.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+ESPTab.TextColor3 = Color3.fromRGB(255, 255, 255)
+ESPTab.Text = "ESP"
+ESPTab.Font = Enum.Font.GothamBold
+ESPTab.TextSize = 14
+ESPTab.Parent = MainFrame
+Instance.new("UICorner", ESPTab).CornerRadius = UDim.new(0, 6)
+
+local AimbotTab = Instance.new("TextButton")
+AimbotTab.Size = UDim2.new(0.5, -5, 0, 30)
+AimbotTab.Position = UDim2.new(0.5, 0, 0, 5)
+AimbotTab.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+AimbotTab.TextColor3 = Color3.fromRGB(255, 255, 255)
+AimbotTab.Text = "AIMBOT"
+AimbotTab.Font = Enum.Font.GothamBold
+AimbotTab.TextSize = 14
+AimbotTab.Parent = MainFrame
+Instance.new("UICorner", AimbotTab).CornerRadius = UDim.new(0, 6)
+
+--// Panel ESP
+local ESPPanel = Instance.new("Frame")
+ESPPanel.Size = UDim2.new(1, -20, 0, 70)
+ESPPanel.Position = UDim2.new(0, 10, 0, 40)
+ESPPanel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+ESPPanel.Parent = MainFrame
+Instance.new("UICorner", ESPPanel).CornerRadius = UDim.new(0, 8)
+
+local ESPToggle = Instance.new("TextButton")
+ESPToggle.Size = UDim2.new(1, -10, 0, 30)
+ESPToggle.Position = UDim2.new(0, 5, 0, 20)
+ESPToggle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+ESPToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+ESPToggle.Text = "ESP: OFF"
+ESPToggle.Font = Enum.Font.GothamSemibold
+ESPToggle.TextSize = 14
+ESPToggle.AutoButtonColor = false
+ESPToggle.Parent = ESPPanel
+Instance.new("UICorner", ESPToggle).CornerRadius = UDim.new(0, 6)
+
+--// Panel Aimbot
+local AimbotPanel = Instance.new("Frame")
+AimbotPanel.Size = UDim2.new(1, -20, 0, 70)
+AimbotPanel.Position = UDim2.new(0, 10, 0, 40)
+AimbotPanel.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+AimbotPanel.Visible = false
+AimbotPanel.Parent = MainFrame
+Instance.new("UICorner", AimbotPanel).CornerRadius = UDim.new(0, 8)
+
+local AimbotToggle = Instance.new("TextButton")
+AimbotToggle.Size = UDim2.new(1, -10, 0, 30)
+AimbotToggle.Position = UDim2.new(0, 5, 0, 20)
+AimbotToggle.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+AimbotToggle.TextColor3 = Color3.fromRGB(255, 255, 255)
+AimbotToggle.Text = "Aimbot: OFF"
+AimbotToggle.Font = Enum.Font.GothamSemibold
+AimbotToggle.TextSize = 14
+AimbotToggle.AutoButtonColor = false
+AimbotToggle.Parent = AimbotPanel
+Instance.new("UICorner", AimbotToggle).CornerRadius = UDim.new(0, 6)
+
+--// Tab Switch
+ESPTab.MouseButton1Click:Connect(function()
+	ESPPanel.Visible = true
+	AimbotPanel.Visible = false
+end)
+AimbotTab.MouseButton1Click:Connect(function()
+	ESPPanel.Visible = false
+	AimbotPanel.Visible = true
+end)
+
+--// ESP Logic
+local ESPEnabled = false
+local ESPObjects = {}
+
+function CreateESP(plr)
+	if plr == LocalPlayer then return end
+	local Line = Drawing.new("Line")
+	Line.Color = Color3.fromRGB(0, 0, 0)
+	Line.Thickness = 1.4
+	local NameTag = Drawing.new("Text")
+	NameTag.Color = Color3.fromRGB(255, 255, 255)
+	NameTag.Size = 13
+	NameTag.Center = true
+	NameTag.Outline = true
+	NameTag.Font = 2
+	local HealthText = Drawing.new("Text")
+	HealthText.Color = Color3.fromRGB(255, 255, 255)
+	HealthText.Size = 13
+	HealthText.Center = true
+	HealthText.Outline = true
+	HealthText.Font = 2
+	local Highlight = Instance.new("Highlight")
+	Highlight.DepthMode = Enum.HighlightDepthMode.AlwaysOnTop
+	Highlight.FillTransparency = 0.5
+	Highlight.OutlineTransparency = 0
+	Highlight.FillColor = Color3.fromRGB(255, 255, 255)
+	Highlight.OutlineColor = Color3.fromRGB(255, 255, 255)
+	Highlight.Enabled = false
+	Highlight.Parent = game.CoreGui
+	ESPObjects[plr] = {Line = Line, Name = NameTag, Health = HealthText, Highlight = Highlight}
+end
+
+function RemoveESP(plr)
+	if ESPObjects[plr] then
+		for _, obj in pairs(ESPObjects[plr]) do
+			if typeof(obj) == "Instance" then
+				obj:Destroy()
+			else
+				obj:Remove()
+			end
+		end
+		ESPObjects[plr] = nil
+	end
+end
+
+for _, player in pairs(Players:GetPlayers()) do CreateESP(player) end
+Players.PlayerAdded:Connect(CreateESP)
+Players.PlayerRemoving:Connect(RemoveESP)
+
+RunService.RenderStepped:Connect(function()
+	for plr, esp in pairs(ESPObjects) do
+		local char = plr.Character
+		if char and char:FindFirstChild("HumanoidRootPart") and char:FindFirstChild("Head") and char:FindFirstChild("Humanoid") and ESPEnabled then
+			local hrp = char.HumanoidRootPart
+			local pos, onscreen = Camera:WorldToViewportPoint(hrp.Position)
+			local headPos = Camera:WorldToViewportPoint(char.Head.Position + Vector3.new(0, 0.5, 0))
+			if onscreen then
+				esp.Line.From = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y)
+				esp.Line.To = Vector2.new(pos.X, pos.Y)
+				esp.Line.Visible = true
+				esp.Name.Text = plr.Name
+				esp.Name.Position = Vector2.new(headPos.X, headPos.Y - 15)
+				esp.Name.Visible = true
+				esp.Health.Text = math.floor(char.Humanoid.Health) .. " HP"
+				esp.Health.Position = Vector2.new(headPos.X, headPos.Y)
+				esp.Health.Visible = true
+				esp.Highlight.Adornee = char
+				esp.Highlight.Enabled = true
+			else
+				esp.Line.Visible = false
+				esp.Name.Visible = false
+				esp.Health.Visible = false
+				esp.Highlight.Enabled = false
+			end
+		else
+			esp.Line.Visible = false
+			esp.Name.Visible = false
+			esp.Health.Visible = false
+			esp.Highlight.Enabled = false
+		end
+	end
+end)
+
+ESPToggle.MouseButton1Click:Connect(function()
+	ESPEnabled = not ESPEnabled
+	ESPToggle.Text = "ESP: " .. (ESPEnabled and "ON" or "OFF")
+	for _, esp in pairs(ESPObjects) do
+		esp.Highlight.Enabled = ESPEnabled
+	end
+end)
+
+--// Aimbot System
+local AimbotEnabled = false
+local function getChestPosition(character)
+	local upperTorso = character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso")
+	if upperTorso then
+		return upperTorso.Position + Vector3.new(0, upperTorso.Size.Y * 0.4, 0)
+	end
+	return nil
+end
+
+local function findClosestChest()
+	local closestTarget, shortestDistance = nil, math.huge
+	for _, player in ipairs(Players:GetPlayers()) do
+		if player ~= LocalPlayer and player.Character then
+			local char = player.Character
+			local humanoid = char:FindFirstChild("Humanoid")
+			local chest = getChestPosition(char)
+			if humanoid and humanoid.Health > 0 and chest then
+				local screenPos, onScreen = Camera:WorldToScreenPoint(chest)
+				local origin = Camera.CFrame.Position
+				local direction = (chest - origin).Unit * 500
+				local rayParams = RaycastParams.new()
+				rayParams.FilterDescendantsInstances = {LocalPlayer.Character}
+				rayParams.FilterType = Enum.RaycastFilterType.Blacklist
+				local result = workspace:Raycast(origin, direction, rayParams)
+				if onScreen and result and result.Instance:IsDescendantOf(char) then
+					local center = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+					local dist = (Vector2.new(screenPos.X, screenPos.Y) - center).Magnitude
+					if dist < shortestDistance then
+						shortestDistance = dist
+						closestTarget = chest
+					end
+				end
+			end
+		end
+	end
+	return closestTarget
+end
+
+RunService.RenderStepped:Connect(function()
+	if AimbotEnabled then
+		local chest = findClosestChest()
+		if chest then
+			local camPos = Camera.CFrame.Position
+			local aimDir = (chest - camPos).Unit
+			Camera.CFrame = CFrame.new(camPos, camPos + aimDir)
+		end
+	end
+end)
+
+AimbotToggle.MouseButton1Click:Connect(function()
+	AimbotEnabled = not AimbotEnabled
+	AimbotToggle.Text = "Aimbot: " .. (AimbotEnabled and "ON" or "OFF")
+end)
+
+--// Toggle buka/tutup GUI utama
+local visible = false
+ToggleButton.MouseButton1Click:Connect(function()
+	visible = not visible
+	ScreenGui.Enabled = visible
+	ToggleButton.Text = visible and "-" or "+"
+end)
